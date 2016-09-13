@@ -357,6 +357,10 @@ require([
         return result;
     }
 
+    function _hasTypeInFieldsArr(fields) {
+        return _.any(fields, function(item) { return item.type; });
+    }
+
     /**
      * On Template changes, recall plugins.
      */
@@ -542,6 +546,9 @@ require([
             if (entry.success && entry.success.fields)
                 fields._hasTypeInSuccessFields = _hasTypeInFields(entry.success.fields);
 
+            if (entry.success && entry.success.headers)
+                fields._hasTypeInSuccessHeaders = _hasTypeInFields(entry.success.headers);
+
             if (entry.info && entry.info.fields)
                 fields._hasTypeInInfoFields = _hasTypeInFields(entry.info.fields);
 
@@ -554,6 +561,9 @@ require([
 
             if (fields._hasTypeInSuccessFields !== true && entry.success && entry.success.fields)
                 fields._hasTypeInSuccessFields = _hasTypeInFields(entry.success.fields);
+
+            if (fields._hasTypeInSuccessHeaders !== true && entry.success && entry.success.headers)
+                fields._hasTypeInSuccessHeaders = _hasTypeInFields(entry.success.headers);
 
             if (fields._hasTypeInInfoFields !== true && entry.info && entry.info.fields)
                 fields._hasTypeInInfoFields = _hasTypeInFields(entry.info.fields);
@@ -695,7 +705,9 @@ require([
             // required to compare
             for(groupName in grouped) {
               grouped[groupName].fields = grouped[groupName].fields || [];
+              grouped[groupName]._fieldsHasType = _hasTypeInFieldsArr(grouped[groupName].fields);
               grouped[groupName].headers = grouped[groupName].headers || [];
+              grouped[groupName]._headersHasType = _hasTypeInFieldsArr(grouped[groupName].headers);
             }
 
             entry.success._grouped = grouped;

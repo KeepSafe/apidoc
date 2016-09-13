@@ -157,7 +157,7 @@
 
     {{subTemplate "article-param-block" params=article.header _hasType=_hasTypeInHeaderFields section="header"}}
     {{subTemplate "article-param-block" params=article.parameter _hasType=_hasTypeInParameterFields section="parameter"}}
-    {{subTemplate "article-success-block" params=article.success _hasType=_hasTypeInSuccessFields section="success"}}
+    {{subTemplate "article-success-block" params=article.success _headersHasType=_hasTypeInSuccessHeaders _fieldsHasType=_hasTypeInSuccessFields section="success"}}
     {{subTemplate "article-param-block" params=article.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
 
     {{subTemplate "article-sample-request" article=article id=id}}
@@ -176,7 +176,7 @@
             <thead>
               <tr>
               <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Header"}}{{/if}}</th>
-                {{#if ../../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
+                {{#if _headersHasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
                 <th style="width: {{#if ../../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
               </tr>
             </thead>
@@ -184,7 +184,7 @@
         {{#each headers}}
           <tr>
             <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}{{#if optional}} <span class="label label-optional">{{__ "optional"}}</span>{{/if}}</td>
-            {{#if ../../_hasType}}
+            {{#if ../_headersHasType}}
               <td>
                 {{{type}}}
               </td>
@@ -211,7 +211,7 @@
             <thead>
               <tr>
               <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
-                {{#if ../../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
+                {{#if _fieldsHasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
                 <th style="width: {{#if ../../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
               </tr>
             </thead>
@@ -219,7 +219,7 @@
         {{#each fields}}
           <tr>
             <td class="code">{{{splitFill field "." "&nbsp;&nbsp;"}}}{{#if optional}} <span class="label label-optional">{{__ "optional"}}</span>{{/if}}</td>
-            {{#if ../../_hasType}}
+            {{#if ../_fieldsHasType}}
               <td>
                 {{{type}}}
               </td>
@@ -486,7 +486,7 @@
     </div>
 
     {{subTemplate "article-compare-param-block" source=article.parameter compare=compare.parameter _hasType=_hasTypeInParameterFields section="parameter"}}
-    {{subTemplate "article-compare-success-block" source=article.success compare=compare.success _hasType=_hasTypeInSuccessFields section="success"}}
+    {{subTemplate "article-compare-success-block" source=article.success compare=compare.success _fieldsHasType=_hasTypeInSuccessFields _headersHasType=_hasTypeInSuccessHeaders section="success"}}
     {{subTemplate "article-compare-param-block" source=article.error compare=compare.error _col1="Name" _hasType=_hasTypeInErrorFields section="error"}}
 
     {{subTemplate "article-sample-request" article=article id=id}}
@@ -605,11 +605,11 @@
       <thead>
         <tr>
           <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Header"}}{{/if}}</th>
-          {{#if ../../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-          <th style="width: {{#if ../../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
+          {{#if ../../_headersHasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
+          <th style="width: {{#if ../../_headersHasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
         </tr>
       </thead>
-      {{subTemplate "article-compare-param-block-body" source=source.value.headers compare=compare.value.headers _hasType=../../_hasType}}
+      {{subTemplate "article-compare-param-block-body" source=source.value.headers compare=compare.value.headers _hasType=../../_headersHasType}}
     </table>
 
     {{#if typeSame}}<table>{{/if}}
@@ -617,12 +617,12 @@
     {{#if typeDel}}<table class="del">{{/if}}
       <thead>
         <tr>
-          <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Header"}}{{/if}}</th>
-          {{#if ../../_hasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
-          <th style="width: {{#if ../../_hasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
+          <th style="width: 30%">{{#if ../../_col1}}{{__ ../../_col1}}{{else}}{{__ "Field"}}{{/if}}</th>
+          {{#if ../../_fieldsHasType}}<th style="width: 10%">{{__ "Type"}}</th>{{/if}}
+          <th style="width: {{#if ../../_fieldsHasType}}60%{{else}}70%{{/if}}">{{__ "Description"}}</th>
         </tr>
       </thead>
-      {{subTemplate "article-compare-param-block-body" source=source.value.fields compare=compare.value.fields _hasType=../../_hasType}}
+      {{subTemplate "article-compare-param-block-body" source=source.value.fields compare=compare.value.fields _hasType=../../_fieldsHasType}}
     </table>
   {{/each_compare_keys}}
 
@@ -818,7 +818,7 @@
         {{#if source.type}}
           <td>{{{source.type}}}</td>
         {{else}}
-          {{{typRowTd}}}
+          {{#if ../../../_hasType}}<td></td>{{/if}}
         {{/if}}
 
           <td>
@@ -838,7 +838,7 @@
         {{#if compare.type}}
           <td>{{{compare.type}}}</td>
         {{else}}
-          {{{typRowTd}}}
+          {{#if ../../../_hasType}}<td></td>{{/if}}
         {{/if}}
 
           <td>
