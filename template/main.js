@@ -50,6 +50,8 @@ require([
     'pathToRegexp'
 ], function($, _, locale, Handlebars, apiProject, apiData, prettyPrint, sampleRequest, semver, WebFont) {
 
+    // Handlebars.logger.level = 0;
+
     // load google web fonts
     loadGoogleFontCss();
 
@@ -331,6 +333,7 @@ require([
                     fields.article.url = apiProject.url + fields.article.url;
 
                 addArticleSettings(fields, entry);
+                extendEntrySuccessGroup(entry);
 
                 if (entry.groupTitle)
                     title = entry.groupTitle;
@@ -392,6 +395,10 @@ require([
                 result = true;
         });
         return result;
+    }
+
+    function _hasTypeInFieldsArr(fields) {
+        return _.any(fields, function(item) { return item.type; });
     }
 
     /**
@@ -552,6 +559,9 @@ require([
                     compareEntry = entry;
             });
 
+            extendEntrySuccessGroup(sourceEntry);
+            extendEntrySuccessGroup(compareEntry);
+
             var fields = {
                 article: sourceEntry,
                 compare: compareEntry,
@@ -576,6 +586,9 @@ require([
             if (entry.success && entry.success.fields)
                 fields._hasTypeInSuccessFields = _hasTypeInFields(entry.success.fields);
 
+            if (entry.success && entry.success.headers)
+                fields._hasTypeInSuccessHeaders = _hasTypeInFields(entry.success.headers);
+
             if (entry.info && entry.info.fields)
                 fields._hasTypeInInfoFields = _hasTypeInFields(entry.info.fields);
 
@@ -589,8 +602,13 @@ require([
             if (fields._hasTypeInSuccessFields !== true && entry.success && entry.success.fields)
                 fields._hasTypeInSuccessFields = _hasTypeInFields(entry.success.fields);
 
+            if (fields._hasTypeInSuccessHeaders !== true && entry.success && entry.success.headers)
+                fields._hasTypeInSuccessHeaders = _hasTypeInFields(entry.success.headers);
+
             if (fields._hasTypeInInfoFields !== true && entry.info && entry.info.fields)
                 fields._hasTypeInInfoFields = _hasTypeInFields(entry.info.fields);
+
+
 
             var content = templateCompareArticle(fields);
             $root.after(content);
@@ -690,6 +708,11 @@ require([
             fields._hasTypeInSuccessFields = _hasTypeInFields(entry.success.fields);
         }
 
+        if (entry.success && entry.success.headers) {
+            sortFields(entry.success.headers);
+            fields._hasTypeInSuccessHeaders = _hasTypeInFields(entry.success.headers);
+        }
+
         if (entry.info && entry.info.fields) {
             sortFields(entry.info.fields);
             fields._hasTypeInInfoFields = _hasTypeInFields(entry.info.fields);
@@ -697,6 +720,38 @@ require([
 
         // add template settings
         fields.template = apiProject.template;
+    }
+
+    /*
+    * Extend entry by combining success description, headers and fields
+    */
+    function extendEntrySuccessGroup(entry) {
+        if(entry.success) {
+            grouped = {};
+            for(groupName in entry.success.headers) {
+                grouped[groupName] = grouped[groupName] || {};
+                grouped[groupName].headers = entry.success.headers[groupName];
+            }
+            for(groupName in entry.success.fields) {
+                grouped[groupName] = grouped[groupName] || {};
+                grouped[groupName].fields = entry.success.fields[groupName];
+            }
+            for(groupName in entry.success.statuses) {
+                grouped[groupName] = grouped[groupName] || {};
+                grouped[groupName].description = entry.success.statuses[groupName].description;
+                grouped[groupName].type = entry.success.statuses[groupName].type;
+            }
+
+            // required to compare
+            for(groupName in grouped) {
+              grouped[groupName].fields = grouped[groupName].fields || [];
+              grouped[groupName]._fieldsHasType = _hasTypeInFieldsArr(grouped[groupName].fields);
+              grouped[groupName].headers = grouped[groupName].headers || [];
+              grouped[groupName]._headersHasType = _hasTypeInFieldsArr(grouped[groupName].headers);
+            }
+
+            entry.success._grouped = grouped;
+        }
     }
 
     /**
@@ -714,6 +769,7 @@ require([
         };
 
         addArticleSettings(fields, entry);
+        extendEntrySuccessGroup(entry);
 
         return templateArticle(fields);
     }
